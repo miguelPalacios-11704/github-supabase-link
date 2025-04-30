@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,14 +44,12 @@ const RegistrationForm: React.FC = () => {
         // Then store additional user info in the Usuario table
         const { error: profileError } = await supabase
           .from('Usuario')
-          .insert([
-            { 
-              id: authData.user.id,
-              Nombre: formData.firstName,
-              Apellido: formData.lastName,
-              email: formData.email
-            }
-          ]);
+          .insert({
+            id: authData.user.id,
+            Nombre: formData.firstName,
+            Apellido: formData.lastName,
+            email: formData.email
+          });
           
         if (profileError) throw profileError;
         
