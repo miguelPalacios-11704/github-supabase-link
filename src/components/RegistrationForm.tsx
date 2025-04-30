@@ -1,15 +1,13 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Checkbox } from '@/components/ui/checkbox';
 
 const RegistrationForm: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -27,50 +25,14 @@ const RegistrationForm: React.FC = () => {
     }));
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      // First create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-      });
-      
-      if (authError) throw authError;
-      
-      if (authData && authData.user) {
-        // Then store additional user info in the Usuario table
-        const { error: profileError } = await supabase
-          .from('Usuario')
-          .insert({
-            id: authData.user.id,
-            Nombre: formData.firstName,
-            Apellido: formData.lastName,
-            email: formData.email
-          });
-          
-        if (profileError) throw profileError;
-        
-        toast({
-          title: "¡Registro recibido!",
-          description: "Por favor, completa tu información fiscal.",
-          variant: "default",
-        });
-        
-        navigate('/rfc');
-      }
-    } catch (error) {
-      console.error('Error during registration:', error);
-      toast({
-        title: "Error en el registro",
-        description: error instanceof Error ? error.message : "Ha ocurrido un error durante el registro",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    toast({
+      title: "¡Registro recibido!",
+      description: "Por favor, completa tu información fiscal.",
+      variant: "default",
+    });
+    navigate('/rfc');
   };
 
   return (
@@ -98,7 +60,6 @@ const RegistrationForm: React.FC = () => {
                   className="w-full"
                   value={formData.firstName}
                   onChange={handleChange}
-                  disabled={isLoading}
                 />
               </div>
               <div>
@@ -113,7 +74,6 @@ const RegistrationForm: React.FC = () => {
                   className="w-full"
                   value={formData.lastName}
                   onChange={handleChange}
-                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -130,7 +90,6 @@ const RegistrationForm: React.FC = () => {
                 className="w-full"
                 value={formData.email}
                 onChange={handleChange}
-                disabled={isLoading}
               />
             </div>
             
@@ -145,7 +104,6 @@ const RegistrationForm: React.FC = () => {
                 className="w-full"
                 value={formData.phone}
                 onChange={handleChange}
-                disabled={isLoading}
               />
             </div>
             
@@ -161,17 +119,17 @@ const RegistrationForm: React.FC = () => {
                 className="w-full"
                 value={formData.password}
                 onChange={handleChange}
-                disabled={isLoading}
               />
             </div>
             
             <div className="flex items-start">
-              <Checkbox
+              <input
                 id="terms"
+                name="terms"
+                type="checkbox"
+                required
                 checked={formData.terms}
-                onCheckedChange={(checked) => 
-                  setFormData(prev => ({ ...prev, terms: checked === true }))}
-                disabled={isLoading}
+                onChange={handleChange}
                 className="h-4 w-4 rounded border-gray-300 text-resico-red focus:ring-resico-red mt-1"
               />
               <label htmlFor="terms" className="ml-2 block text-sm text-resico-medium-gray">
@@ -179,12 +137,8 @@ const RegistrationForm: React.FC = () => {
               </label>
             </div>
             
-            <Button 
-              type="submit" 
-              className="w-full bg-resico-red hover:bg-opacity-90 py-6"
-              disabled={isLoading || !formData.terms}
-            >
-              {isLoading ? 'Creando cuenta...' : 'Crear mi cuenta'}
+            <Button type="submit" className="w-full bg-resico-red hover:bg-opacity-90 py-6">
+              Crear mi cuenta
             </Button>
           </form>
           

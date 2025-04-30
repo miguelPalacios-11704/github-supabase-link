@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import Logo from '@/components/Logo';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -20,30 +19,24 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: '¡Inicio de sesión exitoso!',
-        description: 'Bienvenido de nuevo a ImpuestApp',
-      });
-      
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Error during login:', error);
-      toast({
-        title: 'Error de inicio de sesión',
-        description: error instanceof Error ? error.message : 'Correo o contraseña incorrectos. Por favor intenta de nuevo.',
-        variant: 'destructive',
-      });
-    } finally {
+    // Simulación de login (aquí se integraría con el backend real)
+    setTimeout(() => {
+      // Demo login - En producción esto sería reemplazado por una validación real
+      if (email && password) {
+        toast({
+          title: '¡Inicio de sesión exitoso!',
+          description: 'Bienvenido de nuevo a ImpuestApp',
+        });
+        navigate('/dashboard');
+      } else {
+        toast({
+          title: 'Error de inicio de sesión',
+          description: 'Correo o contraseña incorrectos. Por favor intenta de nuevo.',
+          variant: 'destructive',
+        });
+      }
       setIsLoading(false);
-    }
+    }, 800);
   };
 
   return (
@@ -68,7 +61,6 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full"
-                disabled={isLoading}
               />
             </div>
             
@@ -85,7 +77,6 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="w-full pr-10"
-                  disabled={isLoading}
                 />
                 <button 
                   type="button"
