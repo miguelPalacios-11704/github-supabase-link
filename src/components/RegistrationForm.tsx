@@ -27,12 +27,43 @@ const RegistrationForm: React.FC = () => {
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "¡Registro recibido!",
-      description: "Por favor, completa tu información fiscal.",
-      variant: "default",
-    });
-    navigate('/rfc');
+    
+    try {
+      // Crear contenido del archivo
+      const fileContent = `
+        Nuevo registro:
+        Nombre: ${formData.firstName}
+        Apellido: ${formData.lastName}
+        Email: ${formData.email}
+        Teléfono: ${formData.phone}
+        Fecha: ${new Date().toLocaleString()}
+      `;
+  
+      // Crear blob y descargar archivo
+      const blob = new Blob([fileContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `registro_${Date.now()}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+  
+      toast({
+        title: "¡Registro recibido!",
+        description: "Por favor, completa tu información fiscal.",
+        variant: "default",
+      });
+      navigate('/rfc');
+    } catch (error) {
+      console.error('Error al guardar el archivo:', error);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al guardar el registro",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
