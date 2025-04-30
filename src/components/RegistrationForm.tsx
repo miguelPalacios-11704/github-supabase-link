@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client'; // Asegúrate de tener esta importación
 
 const RegistrationForm: React.FC = () => {
   const { toast } = useToast();
@@ -25,42 +26,39 @@ const RegistrationForm: React.FC = () => {
     }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => { // Cambia a async
     e.preventDefault();
     
     try {
-      // Crear contenido del archivo
-      const fileContent = `
-        Nuevo registro:
-        Nombre: ${formData.firstName}
-        Apellido: ${formData.lastName}
-        Email: ${formData.email}
-        Teléfono: ${formData.phone}
-        Fecha: ${new Date().toLocaleString()}
-      `;
-  
-      // Crear blob y descargar archivo
-      const blob = new Blob([fileContent], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `registro_${Date.now()}.txt`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-  
+      // 1. Insertar en Supabase
+      const { data, error } = await supabase
+        .from('Usuario')
+        .insert({
+          nombre: formData.firstName,
+          apellido: formData.lastName,
+          email: formData.email,
+          telefono: formData.phone,
+          password: formData.password, // ¡OJO! No almacenes contraseñas en texto plano en producción
+          terms_accepted: formData.terms
+        })
+        .select();
+
+      if (error) throw error;
+
+      // 2. Mostrar notificación y redirigir
       toast({
-        title: "¡Registro recibido!",
-        description: "Por favor, completa tu información fiscal.",
+        title: "¡Registro exitoso!",
+        description: "Tus datos se han guardado correctamente",
         variant: "default",
       });
+      
       navigate('/rfc');
+
     } catch (error) {
-      console.error('Error al guardar el archivo:', error);
+      console.error('Error al guardar en la base de datos:', error);
       toast({
-        title: "Error",
-        description: "Ocurrió un error al guardar el registro",
+        title: "Error de registro",
+        description: error instanceof Error ? error.message : "Error al guardar los datos",
         variant: "destructive",
       });
     }
