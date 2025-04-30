@@ -11,18 +11,27 @@ export type Database = {
     Tables: {
       Usuario: {
         Row: {
+          Apellido: string | null
+          email: string | null
           id: number
           Nombre: string
+          password: string | null
           rfc: string | null
         }
         Insert: {
+          Apellido?: string | null
+          email?: string | null
           id?: number
           Nombre: string
+          password?: string | null
           rfc?: string | null
         }
         Update: {
+          Apellido?: string | null
+          email?: string | null
           id?: number
           Nombre?: string
+          password?: string | null
           rfc?: string | null
         }
         Relationships: []
